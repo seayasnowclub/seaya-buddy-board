@@ -486,11 +486,10 @@ textarea { resize: vertical; min-height: 72px; line-height: 1.6; }
         <label>上課雪場 <span class="req">*</span></label>
         <select id="inp-resort">
           <option value="">請選擇雪場</option>
-          <option value="越後湯澤岩原滑雪場">越後湯澤岩原滑雪場</option>
-          <option value="神立滑雪場">神立滑雪場</option>
-          <option value="神樂滑雪場">神樂滑雪場</option>
-          <option value="藏王溫泉滑雪場">藏王溫泉滑雪場</option>
-          <option value="其他">其他</option>
+          <option value="越後湯澤 神立滑雪場">越後湯澤 神立滑雪場</option>
+          <option value="越後湯澤 岩原滑雪場">越後湯澤 岩原滑雪場</option>
+          <option value="越後湯澤 神樂滑雪場">越後湯澤 神樂滑雪場</option>
+          <option value="山形 藏王溫泉滑雪場">山形 藏王溫泉滑雪場</option>
         </select>
       </div>
       <div class="form-field full">
@@ -558,10 +557,10 @@ textarea { resize: vertical; min-height: 72px; line-height: 1.6; }
     <div class="filter-bar">
       <span class="filter-label">雪場</span>
       <button class="filter-chip active" onclick="setFilter('resort',this,'全部')">全部</button>
-      <button class="filter-chip" onclick="setFilter('resort',this,'越後湯澤岩原滑雪場')">岩原</button>
-      <button class="filter-chip" onclick="setFilter('resort',this,'神立滑雪場')">神立</button>
-      <button class="filter-chip" onclick="setFilter('resort',this,'神樂滑雪場')">神樂</button>
-      <button class="filter-chip" onclick="setFilter('resort',this,'藏王溫泉滑雪場')">藏王</button>
+      <button class="filter-chip" onclick="setFilter('resort',this,'越後湯澤 神立滑雪場')">神立</button>
+      <button class="filter-chip" onclick="setFilter('resort',this,'越後湯澤 岩原滑雪場')">岩原</button>
+      <button class="filter-chip" onclick="setFilter('resort',this,'越後湯澤 神樂滑雪場')">神樂</button>
+      <button class="filter-chip" onclick="setFilter('resort',this,'山形 藏王溫泉滑雪場')">藏王</button>
     </div>
   </div>
 
@@ -585,14 +584,14 @@ let filters = { board:'全部', level:'全部', resort:'全部' };
 let replyOpen = {}, matched = {};
 
 let posts = [
-  { id:1, name:'阿雪', board:'單板', level:'落葉飄', dateMode:'single', dateStart:'2027-01-10', dateEnd:'', days:'2', hours:'6', resort:'越後湯澤岩原滑雪場', partners:'2', contact:'@axue_snow', ts:Date.now()-3600000*2, replies:[{name:'Mochi',text:'我也是 1/10！可以一起嗎？',ts:Date.now()-3600000*1}] },
-  { id:2, name:'Mochi', board:'單板', level:'C turn', dateMode:'multi', dateStart:'2027-01-15', dateEnd:'2027-01-17', days:'3', hours:'3', resort:'神立滑雪場', partners:'1', contact:'mochi_board', ts:Date.now()-3600000*5, replies:[] },
-  { id:3, name:'企鵝隊長', board:'雙板', level:'S turn 不順', dateMode:'multi', dateStart:'2027-02-06', dateEnd:'2027-02-09', days:'4', hours:'6', resort:'藏王溫泉滑雪場', partners:'4', contact:'@penguin_ski', ts:Date.now()-3600000*20, replies:[
+  { id:1, name:'阿雪', board:'單板', level:'落葉飄', dateMode:'single', dateStart:'2027-01-10', dateEnd:'', days:'2', hours:'6', resort:'越後湯澤 岩原滑雪場', partners:'2', contact:'@axue_snow', ts:Date.now()-3600000*2, replies:[{name:'Mochi',text:'我也是 1/10！可以一起嗎？',ts:Date.now()-3600000*1}] },
+  { id:2, name:'Mochi', board:'單板', level:'C turn', dateMode:'multi', dateStart:'2027-01-15', dateEnd:'2027-01-17', days:'3', hours:'3', resort:'越後湯澤 神立滑雪場', partners:'1', contact:'mochi_board', ts:Date.now()-3600000*5, replies:[] },
+  { id:3, name:'企鵝隊長', board:'雙板', level:'S turn 不順', dateMode:'multi', dateStart:'2027-02-06', dateEnd:'2027-02-09', days:'4', hours:'6', resort:'山形 藏王溫泉滑雪場', partners:'4', contact:'@penguin_ski', ts:Date.now()-3600000*20, replies:[
     {name:'Kevin',text:'我也在練 S turn，這段期間我也在！',ts:Date.now()-3600000*18},
     {name:'阿雪',text:'請問藏王幾月雪況最好？',ts:Date.now()-3600000*10}
   ]},
-  { id:4, name:'Yuki', board:'單板', level:'新手', dateMode:'single', dateStart:'2027-01-10', dateEnd:'', days:'1', hours:'3', resort:'越後湯澤岩原滑雪場', partners:'3', contact:'yuki.snow23', ts:Date.now()-3600000*30, replies:[] },
-  { id:5, name:'Kevin', board:'雙板', level:'進階專項', dateMode:'multi', dateStart:'2027-01-23', dateEnd:'2027-01-25', days:'3', hours:'4', resort:'神樂滑雪場', partners:'1', contact:'@kevin_shred', ts:Date.now()-3600000*48, replies:[] },
+  { id:4, name:'Yuki', board:'單板', level:'新手', dateMode:'single', dateStart:'2027-01-10', dateEnd:'', days:'1', hours:'3', resort:'越後湯澤 岩原滑雪場', partners:'3', contact:'yuki.snow23', ts:Date.now()-3600000*30, replies:[] },
+  { id:5, name:'Kevin', board:'雙板', level:'進階專項', dateMode:'multi', dateStart:'2027-01-23', dateEnd:'2027-01-25', days:'3', hours:'4', resort:'越後湯澤 神樂滑雪場', partners:'1', contact:'@kevin_shred', ts:Date.now()-3600000*48, replies:[] },
 ];
 
 function timeAgo(ts){ const h=Math.floor((Date.now()-ts)/3600000); if(h<1)return'剛剛'; if(h<24)return h+'小時前'; return Math.floor(h/24)+'天前'; }
@@ -618,7 +617,7 @@ function formatPartners(p){
 
 let contactType = 'LINE';
 function setContactType(btn, val){
-  document.querySelectorAll('.seg-toggle .seg-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.contact-type-toggle .ctype-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   contactType = val;
   const inp = document.getElementById('inp-contact');
@@ -853,9 +852,10 @@ function saveFormData() {
     if (el && el.value.trim()) data[id] = el.value.trim();
   });
   // save board type, level, partners, resort, contact type
-  if (selBoard) data['selBoard'] = selBoard;
-  if (selLevel && selLevel !== '__custom__') data['selLevel'] = selLevel;
-  if (selPartners) data['selPartners'] = selPartners;
+  if (selectedBoardType) data['selBoard'] = selectedBoardType;
+  if (selectedLevel && selectedLevel !== '__custom__') data['selLevel'] = selectedLevel;
+  const partnersVal = document.getElementById('inp-partners');
+  if (partnersVal && partnersVal.value.trim()) data['selPartners'] = partnersVal.value.trim();
   if (contactType) data['contactType'] = contactType;
   const resort = document.getElementById('inp-resort');
   if (resort && resort.value) data['resort'] = resort.value;
@@ -879,7 +879,7 @@ function loadFormData() {
     document.querySelectorAll('.btoggle-btn').forEach(b => {
       if (b.textContent.includes(data.selBoard === '單板' ? '單板' : '雙板')) {
         b.classList.add('active');
-        selBoard = data.selBoard;
+        selectedBoardType = data.selBoard;
       }
     });
   }
@@ -888,7 +888,7 @@ function loadFormData() {
     document.querySelectorAll('.level-btn').forEach(b => {
       if (b.textContent.trim() === data.selLevel) {
         b.classList.add('active');
-        selLevel = data.selLevel;
+        selectedLevel = data.selLevel;
       }
     });
   }
@@ -897,7 +897,8 @@ function loadFormData() {
     document.querySelectorAll('.preset-btn[onclick^="setPartners"]').forEach(b => {
       if (b.textContent.trim() === data.selPartners + '位') {
         b.classList.add('active');
-        selPartners = data.selPartners;
+        const pInp = document.getElementById('inp-partners');
+        if (pInp) pInp.value = data.selPartners;
       }
     });
   }
