@@ -641,7 +641,7 @@ function setHours(btn, val){
   document.getElementById('inp-hours').value = val;
 }
 function setPartners(btn, val){
-  document.querySelectorAll('.hours-preset-btn[onclick^="setPartners"]').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.preset-btn[onclick^="setPartners"]').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('inp-partners').value = val;
 }
@@ -828,15 +828,13 @@ function submitPost(){
   if(!rawContact){alert('請填寫聯繫方式');return;}
   const newId=Math.max(...posts.map(p=>p.id),0)+1;
   posts.unshift({id:newId,name,board:selectedBoardType,level:selectedLevel,dateMode,dateStart,dateEnd,days,hours,resort,partners,contact,ts:Date.now(),replies:[]});
-  ['inp-name','inp-date-start','inp-days','inp-hours','inp-partners','inp-contact'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['inp-date-start','inp-days','inp-hours','inp-partners'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('inp-resort').value='';
   if(dateEndEl)dateEndEl.value='';
-  document.querySelectorAll('.level-btn,.board-toggle-btn,.hours-preset-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.level-btn,.board-toggle-btn,.hours-preset-btn,.preset-btn[onclick^="setPartners"]').forEach(b=>b.classList.remove('active'));
   document.getElementById('inp-custom-level').style.display='none';
   document.getElementById('inp-custom-level').value='';
   customLevelMode=false;
-  contactType='LINE';
-  document.querySelectorAll('.seg-toggle .seg-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
   selectedLevel='';selectedBoardType='';
   filters={board:'全部',level:'全部',resort:'全部'};
   document.querySelectorAll('.filter-chip').forEach(b=>b.classList.toggle('active',b.textContent.trim()==='全部'));
