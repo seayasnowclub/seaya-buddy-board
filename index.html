@@ -473,7 +473,7 @@ textarea { resize: vertical; min-height: 72px; line-height: 1.6; }
       </div>
       <div class="form-field full">
         <label id="date-label">上課日期 <span class="req">*</span></label>
-        <div class="date-row single" id="date-row"><input id="inp-date-start" type="date" min="2026-12-01" max="2027-04-30"/></div>
+        <div class="date-row single" id="date-row"><input id="inp-date-start" type="date" min="2026-12-01" max="2027-04-30" onclick="this.showPicker&&this.showPicker()" style="cursor:pointer;"/></div>
         <div style="font-size:11px;color:#aaa;margin-top:4px;">⛷️ 2026/12 — 2027/04 雪季期間</div>
       </div>
       <div class="form-field full">
@@ -599,6 +599,14 @@ let selectedLevel='', selectedBoardType='', dateMode='single';
 let filters = { board:'全部', level:'全部', resort:'全部' };
 let replyOpen = {}, matched = {};
 
+function savePosts(){ try{ localStorage.setItem('seaya_posts', JSON.stringify(posts)); }catch(e){} }
+function loadPosts(){
+  try{
+    const saved = localStorage.getItem('seaya_posts');
+    if(saved){ const p=JSON.parse(saved); if(p&&p.length){ posts=p; return; } }
+  }catch(e){}
+}
+
 let posts = [
   { id:1, name:'阿雪', board:'單板', level:'落葉飄', dateMode:'single', dateStart:'2027-01-10', dateEnd:'', days:'2', hours:'6', resort:'越後湯澤 岩原滑雪場', partners:'2', contact:'@axue_snow', ts:Date.now()-3600000*2, replies:[{name:'Mochi',text:'我也是 1/10！可以一起嗎？',ts:Date.now()-3600000*1}] },
   { id:2, name:'Mochi', board:'單板', level:'C turn', dateMode:'multi', dateStart:'2027-01-15', dateEnd:'2027-01-17', days:'3', hours:'3', resort:'越後湯澤 神立滑雪場', partners:'1', contact:'mochi_board', ts:Date.now()-3600000*5, replies:[] },
@@ -668,11 +676,11 @@ function setDateMode(btn, mode){
   const lbl=document.getElementById('date-label');
   if(mode==='multi'){
     row.className='date-row range';
-    row.innerHTML='<input id="inp-date-start" type="date" style="cursor:pointer;"/><span class="date-sep">—</span><input id="inp-date-end" type="date"/>';
+    row.innerHTML='<input id="inp-date-start" type="date" min="2026-12-01" max="2027-04-30" onclick="this.showPicker&&this.showPicker()" style="cursor:pointer;"/><span class="date-sep">—</span><input id="inp-date-end" type="date" min="2026-12-01" max="2027-04-30" onclick="this.showPicker&&this.showPicker()" style="cursor:pointer;"/>';
     lbl.textContent='上課期間';
   } else {
     row.className='date-row single';
-    row.innerHTML='<input id="inp-date-start" type="date" style="cursor:pointer;"/>';
+    row.innerHTML='<input id="inp-date-start" type="date" min="2026-12-01" max="2027-04-30" onclick="this.showPicker&&this.showPicker()" style="cursor:pointer;"/>';
     lbl.textContent='上課日期';
   }
 }
@@ -700,14 +708,14 @@ function showToast(msg){
 }
 let editingReply=null;
 function startEditReply(postId,replyIdx){ editingReply={postId,replyIdx}; renderPosts(); setTimeout(()=>{ const el=document.getElementById('edit-inp-'+postId+'-'+replyIdx); if(el){el.focus();el.select();}},50); }
-function saveEditReply(postId,replyIdx){ const inp=document.getElementById('edit-inp-'+postId+'-'+replyIdx); const text=inp?inp.value.trim():''; if(!text)return; const post=posts.find(p=>p.id===postId); if(post)post.replies[replyIdx].text=text; editingReply=null; renderPosts(); showToast('已更新留言'); }
+function saveEditReply(postId,replyIdx){ const inp=document.getElementById('edit-inp-'+postId+'-'+replyIdx); const text=inp?inp.value.trim():''; if(!text)return; const post=posts.find(p=>p.id===postId); if(post)post.replies[replyIdx].text=text; editingReply=null; savePosts(); renderPosts(); showToast('已更新留言'); }
 function cancelEditReply(){ editingReply=null; renderPosts(); }
 function deleteReply(postId, replyIdx){
   const post = posts.find(p=>p.id===postId);
-  if(post){ post.replies.splice(replyIdx,1); renderPosts(); showToast('留言已刪除'); }
+  if(post){ post.replies.splice(replyIdx,1); savePosts(); renderPosts(); showToast('留言已刪除'); }
 }
-function sendReply(postId){ const inp=document.getElementById('reply-inp-'+postId); const text=inp.value.trim(); if(!text)return; posts.find(p=>p.id===postId).replies.push({name:'我',text,ts:Date.now()}); inp.value=''; renderPosts(); showToast('留言已送出 ✓'); }
-function quickReply(postId,text){ posts.find(p=>p.id===postId).replies.push({name:'我',text,ts:Date.now()}); replyOpen[postId]=true; renderPosts(); showToast('留言已送出 ✓'); }
+function sendReply(postId){ const inp=document.getElementById('reply-inp-'+postId); const text=inp.value.trim(); if(!text)return; posts.find(p=>p.id===postId).replies.push({name:'我',text,ts:Date.now()}); inp.value=''; savePosts(); renderPosts(); showToast('留言已送出 ✓'); }
+function quickReply(postId,text){ posts.find(p=>p.id===postId).replies.push({name:'我',text,ts:Date.now()}); replyOpen[postId]=true; savePosts(); renderPosts(); showToast('留言已送出 ✓'); }
 function toggleReply(postId){ replyOpen[postId]=!replyOpen[postId]; renderPosts(); }
 function copyContact(val,btnId){ navigator.clipboard.writeText(val).then(()=>{ const btn=document.getElementById(btnId); if(!btn)return; const orig=btn.innerHTML; btn.innerHTML='<i class="ti ti-check"></i> 已複製'; setTimeout(()=>btn.innerHTML=orig,1500); }); }
 
@@ -868,6 +876,7 @@ function submitPost(){
   if(!rawContact){alert('請填寫聯繫方式');return;}
   const newId=Math.max(...posts.map(p=>p.id),0)+1;
   posts.unshift({id:newId,name,board:selectedBoardType,level:selectedLevel,dateMode,dateStart,dateEnd,days,hours,resort,partners,contact,ts:Date.now(),replies:[]});
+  savePosts();
   ['inp-date-start','inp-days','inp-hours','inp-partners'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('inp-resort').value='';
   if(dateEndEl)dateEndEl.value='';
@@ -975,6 +984,7 @@ toggleForm = function() {
   }
 };
 
+loadPosts();
 renderPosts();
 
 </script>
