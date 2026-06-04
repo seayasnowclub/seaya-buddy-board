@@ -475,7 +475,7 @@ textarea { resize: vertical; min-height: 72px; line-height: 1.6; }
       </div>
       <div class="form-field full">
         <label>想找幾位夥伴 <span class="req">*</span></label>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <div id="partners-group" style="display:flex;gap:6px;flex-wrap:wrap;">
           <button class="preset-btn" onclick="setPartners(this,'1')">1位</button>
           <button class="preset-btn" onclick="setPartners(this,'2')">2位</button>
           <button class="preset-btn" onclick="setPartners(this,'3')">3位</button>
@@ -641,7 +641,7 @@ function setHours(btn, val){
   document.getElementById('inp-hours').value = val;
 }
 function setPartners(btn, val){
-  document.querySelectorAll('.preset-btn[onclick^="setPartners"]').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#partners-group .preset-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('inp-partners').value = val;
 }
@@ -831,7 +831,8 @@ function submitPost(){
   ['inp-date-start','inp-days','inp-hours','inp-partners'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('inp-resort').value='';
   if(dateEndEl)dateEndEl.value='';
-  document.querySelectorAll('.level-btn,.board-toggle-btn,.hours-preset-btn,.preset-btn[onclick^="setPartners"]').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.level-btn,.board-toggle-btn,.hours-preset-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#partners-group .preset-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('inp-custom-level').style.display='none';
   document.getElementById('inp-custom-level').value='';
   customLevelMode=false;
