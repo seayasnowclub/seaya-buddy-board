@@ -425,6 +425,21 @@ textarea { resize: vertical; min-height: 72px; line-height: 1.6; }
   .tag { font-size: 10px; }
   .meta-row { font-size: 11px; }
 }
+.toast {
+  position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%);
+  background: #1a1714; color: #fff; padding: 10px 22px; border-radius: 20px;
+  font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.2s;
+  pointer-events: none; z-index: 999; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+.reply-actions { display:flex; gap:6px; margin-top:4px; }
+.reply-action-btn { font-family:inherit; font-size:11px; color:var(--ink2); background:none; border:1px solid var(--border); border-radius:6px; padding:2px 8px; cursor:pointer; transition:all 0.15s; }
+.reply-action-btn:hover { border-color:var(--orange); color:var(--orange); }
+.reply-action-btn.danger:hover { border-color:#e53; color:#e53; }
+.edit-reply-textarea { width:100%; padding:8px; border:1.5px solid var(--orange); border-radius:8px; font-size:13px; font-family:inherit; resize:none; margin-top:4px; }
+.edit-reply-btns { display:flex; gap:6px; margin-top:6px; }
+.edit-save-btn { font-family:inherit; font-size:12px; font-weight:700; background:var(--orange); color:#fff; border:none; border-radius:8px; padding:5px 14px; cursor:pointer; }
+.edit-cancel-btn { font-family:inherit; font-size:12px; font-weight:600; background:none; color:var(--ink2); border:1px solid var(--border); border-radius:8px; padding:5px 14px; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -677,12 +692,22 @@ function toggleMatch(postId){
   matched[postId]=!matched[postId];
   renderPosts();
 }
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),2000);
+}
+let editingReply=null;
+function startEditReply(postId,replyIdx){ editingReply={postId,replyIdx}; renderPosts(); setTimeout(()=>{ const el=document.getElementById('edit-inp-'+postId+'-'+replyIdx); if(el){el.focus();el.select();}},50); }
+function saveEditReply(postId,replyIdx){ const inp=document.getElementById('edit-inp-'+postId+'-'+replyIdx); const text=inp?inp.value.trim():''; if(!text)return; const post=posts.find(p=>p.id===postId); if(post)post.replies[replyIdx].text=text; editingReply=null; renderPosts(); showToast('已更新留言'); }
+function cancelEditReply(){ editingReply=null; renderPosts(); }
 function deleteReply(postId, replyIdx){
   const post = posts.find(p=>p.id===postId);
-  if(post){ post.replies.splice(replyIdx,1); renderPosts(); }
+  if(post){ post.replies.splice(replyIdx,1); renderPosts(); showToast('留言已刪除'); }
 }
-function sendReply(postId){ const inp=document.getElementById('reply-inp-'+postId); const text=inp.value.trim(); if(!text)return; posts.find(p=>p.id===postId).replies.push({name:'我',text,ts:Date.now()}); inp.value=''; renderPosts(); }
-function quickReply(postId,text){ posts.find(p=>p.id===postId).replies.push({name:'我',text,ts:Date.now()}); replyOpen[postId]=true; renderPosts(); }
+function sendReply(postId){ const inp=document.getElementById('reply-inp-'+postId); const text=inp.value.trim(); if(!text)return; posts.find(p=>p.id===postId).replies.push({name:'我',text,ts:Date.now()}); inp.value=''; renderPosts(); showToast('留言已送出 ✓'); }
+function quickReply(postId,text){ posts.find(p=>p.id===postId).replies.push({name:'我',text,ts:Date.now()}); replyOpen[postId]=true; renderPosts(); showToast('留言已送出 ✓'); }
 function toggleReply(postId){ replyOpen[postId]=!replyOpen[postId]; renderPosts(); }
 function copyContact(val,btnId){ navigator.clipboard.writeText(val).then(()=>{ const btn=document.getElementById(btnId); if(!btn)return; const orig=btn.innerHTML; btn.innerHTML='<i class="ti ti-check"></i> 已複製'; setTimeout(()=>btn.innerHTML=orig,1500); }); }
 
@@ -705,7 +730,9 @@ function renderPosts(){
     const boardTagClass=p.board==='單板'?'tag-single':'tag-double';
     const lessonStr=formatLesson(p);
 
-    const repliesHtml=p.replies.map((r,ri)=>`
+    const repliesHtml=p.replies.map((r,ri)=>{
+      const isEdit=editingReply&&editingReply.postId===p.id&&editingReply.replyIdx===ri;
+      return `
       <div class="reply-item">
         <div class="reply-avatar">
         <svg width="14" height="17" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -725,11 +752,24 @@ function renderPosts(){
               <span class="reply-name">${r.name}</span>
               <span class="reply-time">${timeAgo(r.ts)}</span>
             </div>
-            <button onclick="deleteReply(${p.id},${ri})" style="font-family:inherit;font-size:11px;color:#ccc;background:none;border:none;cursor:pointer;padding:0 4px;" title="刪除">✕</button>
           </div>
-          <div class="reply-text">${r.text}</div>
+          ${isEdit?`
+            <textarea class="edit-reply-textarea" id="edit-inp-${p.id}-${ri}" rows="2"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();saveEditReply(${p.id},${ri});}">${r.text}</textarea>
+            <div class="edit-reply-btns">
+              <button class="edit-save-btn" onclick="saveEditReply(${p.id},${ri})">儲存</button>
+              <button class="edit-cancel-btn" onclick="cancelEditReply()">取消</button>
+            </div>
+          `:`
+            <div class="reply-text">${r.text}</div>
+            <div class="reply-actions">
+              <button class="reply-action-btn" onclick="startEditReply(${p.id},${ri})">編輯</button>
+              <button class="reply-action-btn danger" onclick="deleteReply(${p.id},${ri})">刪除</button>
+            </div>
+          `}
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
     const quickChips=QUICK.map(q=>`<button class="quick-chip" onclick="quickReply(${p.id},'${q}')">${q}</button>`).join('');
 
     return `<div class="post-card${isMatched?' matched':''}">
@@ -938,5 +978,6 @@ toggleForm = function() {
 renderPosts();
 
 </script>
+<div id="toast" class="toast"></div>
 </body>
 </html>
