@@ -710,7 +710,9 @@ function toggleMatch(postId){
   renderPosts();
 }
 function deletePost(postId){
-  if(!confirm('確定刪除這則找伴資訊？')) return;
+  const post=posts.find(p=>p.id===postId);
+  const label=post?`「${post.name}」的這則找伴資訊`:'這則找伴資訊';
+  if(!confirm(`確定要刪除 ${label} 嗎？`)) return;
   posts = posts.filter(p=>p.id!==postId);
   myPostIds = myPostIds.filter(id=>id!==postId);
   localStorage.setItem('seaya_my_post_ids', JSON.stringify(myPostIds));
