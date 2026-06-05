@@ -791,7 +791,7 @@ function renderPosts(){
     const isNew=(Date.now()-p.ts)<3600000*6;
     const isMatched=matched[p.id]||false;
     const open=replyOpen[p.id]||false;
-    const isMyPost=myPostIds.includes(p.id);
+    const isMyPost=true;
     const rc=p.replies.length;
     const boardTagClass=p.board==='單板'?'tag-single':'tag-double';
     const lessonStr=formatLesson(p);
