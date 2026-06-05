@@ -438,6 +438,21 @@ textarea { resize: vertical; min-height: 72px; line-height: 1.6; }
   pointer-events: none; z-index: 999; white-space: nowrap;
 }
 .toast.show { opacity: 1; }
+.success-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.2s; pointer-events: none;
+}
+.success-modal-overlay.show { opacity: 1; pointer-events: auto; }
+.success-modal {
+  background: #fff; border-radius: 20px; padding: 36px 32px; text-align: center;
+  max-width: 280px; width: 90%; box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+  transform: scale(0.9); transition: transform 0.2s;
+}
+.success-modal-overlay.show .success-modal { transform: scale(1); }
+.success-modal-icon { font-size: 44px; margin-bottom: 12px; }
+.success-modal-title { font-size: 18px; font-weight: 900; color: var(--ink); margin-bottom: 6px; }
+.success-modal-sub { font-size: 13px; color: var(--ink2); line-height: 1.6; }
 .reply-actions { display:flex; gap:6px; margin-top:4px; }
 .reply-action-btn { font-family:inherit; font-size:11px; color:var(--ink2); background:none; border:1px solid var(--border); border-radius:6px; padding:2px 8px; cursor:pointer; transition:all 0.15s; }
 .reply-action-btn:hover { border-color:var(--orange); color:var(--orange); }
@@ -771,7 +786,11 @@ function saveEditReply(postId,replyIdx){ const inp=document.getElementById('edit
 function cancelEditReply(){ editingReply=null; renderPosts(); }
 function deleteReply(postId, replyIdx){
   const post = posts.find(p=>p.id===postId);
-  if(post){ post.replies.splice(replyIdx,1); savePosts(); renderPosts(); showToast('留言已刪除'); }
+  if(!post) return;
+  const reply = post.replies[replyIdx];
+  const label = reply ? `「${reply.name}」的這則留言` : '這則留言';
+  if(!confirm(`確定要刪除 ${label} 嗎？`)) return;
+  post.replies.splice(replyIdx,1); savePosts(); renderPosts(); showToast('留言已刪除');
 }
 function sendReply(postId){ const inp=document.getElementById('reply-inp-'+postId); const text=inp.value.trim(); if(!text)return; posts.find(p=>p.id===postId).replies.push({name:'我',text,ts:Date.now()}); inp.value=''; savePosts(); renderPosts(); showToast('留言已送出 ✓'); }
 function quickReply(postId,text){ posts.find(p=>p.id===postId).replies.push({name:'我',text,ts:Date.now()}); replyOpen[postId]=true; savePosts(); renderPosts(); showToast('留言已送出 ✓'); }
@@ -953,7 +972,7 @@ function submitPost(){
     myPostIds.push(newId);
     localStorage.setItem('seaya_my_post_ids', JSON.stringify(myPostIds));
     savePosts();
-    showToast('找伴資訊已發布 ✓');
+    showSuccessModal(name);
   }
   ['inp-date-start','inp-days','inp-hours','inp-partners'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('inp-resort').value='';
@@ -1062,10 +1081,24 @@ toggleForm = function() {
   }
 };
 
+function showSuccessModal(name){
+  const overlay=document.getElementById('success-overlay');
+  document.getElementById('success-name').textContent=name?`「${name}」`:'你的找伴資訊';
+  overlay.classList.add('show');
+  setTimeout(()=>overlay.classList.remove('show'),2800);
+}
+
 loadPosts();
 renderPosts();
 
 </script>
 <div id="toast" class="toast"></div>
+<div id="success-overlay" class="success-modal-overlay" onclick="this.classList.remove('show')">
+  <div class="success-modal">
+    <div class="success-modal-icon">🎿</div>
+    <div class="success-modal-title">發布成功！</div>
+    <div class="success-modal-sub"><span id="success-name"></span><br>已出現在找伴列表囉</div>
+  </div>
+</div>
 </body>
 </html>
